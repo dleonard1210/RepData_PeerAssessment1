@@ -1,11 +1,6 @@
----
-title: "Activity Monitoring Data Analysis"
-author: "David M. Leonard"
-date: "April 2nd, 2017"
-output: 
-  html_document: 
-    keep_md: yes
----
+# Activity Monitoring Data Analysis
+David M. Leonard  
+April 2nd, 2017  
 <style type="text/css">
 
 body{ /* Normal  */
@@ -13,14 +8,10 @@ body{ /* Normal  */
 }
 </style>
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache = FALSE)
 
-library(dplyr)
-library(ggplot2)
-```
 
-```{r ReadData}
+
+```r
 ad <- read.csv("activity.csv", stringsAsFactors = F)
 ad$date <- as.Date(ad$date)
 ad$DoW <- weekdays(ad$date)
@@ -45,13 +36,14 @@ napct <- as.integer(floor(.5 + (100*naobs/totalobs)))
 ```
 ## Overview and data summary
 
-This report analyzes activity monitoring data collected over a period of `r days` days, from `r firstday` to `r lastday`. The data consists of a count of steps taken in five minute intervals throughout each day by the wearer of a monitoring device, for a total of `r formatC(totalobs,big.mark=",")` possible observations; however, `r formatC(naobs,big.mark=",")` (`r napct`%) of the intervals had no measurements.
+This report analyzes activity monitoring data collected over a period of 61 days, from 2012-10-01 to 2012-11-30. The data consists of a count of steps taken in five minute intervals throughout each day by the wearer of a monitoring device, for a total of 17,568 possible observations; however, 2,304 (13%) of the intervals had no measurements.
 
 ## Steps Per Day
 
 The chart below shows the number of steps counted each day.
 
-```{r fig.width = 11, fig.height = 6}
+
+```r
 stepsbyday <- ad %>% 
     group_by(date,Wknd) %>% 
     summarize(steps = sum(steps, na.rm = TRUE))
@@ -72,12 +64,14 @@ legend("bottom",bg = "white",
        legend = c("Weekday", "Weekend Day"), 
        col = c(1,2), 
        lwd = 8)
-
 ```
 
-Ignoring intervals with no reported values, the average daily step count over the `r days` day measurement period was `r formatC(as.integer(dailysteps),big.mark = ",")`, and the median step count was `r formatC(as.integer(mediandailysteps),big.mark = ",")`. The chart below shows the distribution of step counts. The most frequent step count was between 10,000 and 11,000 steps.
+![](PA1_template_files/figure-html/unnamed-chunk-1-1.png)<!-- -->
 
-```{r fig.width = 11, fig.height = 5}
+Ignoring intervals with no reported values, the average daily step count over the 61 day measurement period was 9,354, and the median step count was 10,395. The chart below shows the distribution of step counts. The most frequent step count was between 10,000 and 11,000 steps.
+
+
+```r
 mediancolor = "blue"
 meancolor = "dark red"
 hist(stepsbyday$steps, 
@@ -101,8 +95,11 @@ legend("topright",bg = "white",
        lty = c(1,2))
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
 ## Average Steps Per Interval
-```{r}
+
+```r
 intavg <- ad %>% 
     group_by(interval) %>% 
     summarize(avgsteps = mean(steps, na.rm = T)) 
@@ -111,10 +108,11 @@ maxtime <- maxinterval$interval[1]
 maxsteps <- formatC(round(maxinterval$avgsteps[1]), big.mark = ",")
 ```
 
-For the time period in question, the daily 5-minute interval starting at `r maxtime` had the highest average step count, which was `r maxsteps` steps.
+For the time period in question, the daily 5-minute interval starting at 08:35 had the highest average step count, which was 206 steps.
 
 The plot below shows the step count by interval over the course of an average day.
-```{r fig.width = 11, fig.height = 5}
+
+```r
 intavgTitle <- paste("Average Step Count per Interval for the period from",firstday,"to",lastday)
 plot(intavg$avgsteps, type = "l", 
      xlab = "", 
@@ -130,9 +128,12 @@ axis(2,at = axTicks(2),
      labels = formatC(axTicks(2), format = "d", big.mark = ","))
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+
 ## Missing Observations
-As mentioned earlier, `r napct`% of observations were missing from the data. These missing values are isolated to 8 separate days for which there were no measurements at all, while the remaining days all had a full set of values (see chart below).
-```{r fig.width = 12, fig.height = 6}
+As mentioned earlier, 13% of observations were missing from the data. These missing values are isolated to 8 separate days for which there were no measurements at all, while the remaining days all had a full set of values (see chart below).
+
+```r
 countsbyday <- ad %>% 
     group_by(date) %>% 
     summarize(naobs = sum(is.na(steps)), stepobs = sum(!is.na(steps)))
@@ -159,9 +160,12 @@ legend("bottom",
        col = c("light grey","dark green"))
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
 To adjust for missing values, I chose to fill in using the average value for the given interval over the entire sample period. The chart below shows the resulting new distribution of step counts.
 
-```{r fig.width = 11, fig.height = 5}
+
+```r
 adf <- inner_join(ad, intavg, by = "interval")
 adf[is.na(adf$steps), "steps"] <- as.integer(round(adf[is.na(adf$steps), "avgsteps"]))
 
@@ -194,11 +198,14 @@ legend("topright",bg = "white",
        lwd = 2,
        lty = c(1,2))
 ```
-After adjusting for missing values, the mean and median daily step counts have converged; the mean daily step count for the `r days` day period is now `r formatC(dailystepsf, format = "d", big.mark = ",")`, or `r formatC(((dailystepsf/dailysteps)-1)*100, format = "d")`% higher than the unadjusted data suggested, while the median count has risen to `r formatC(mediandailystepsf, format = "d", big.mark = ",")`. (Note that had we taken the original total step count and divided by the number of days with no missing observations we would have gotten the same average value we see in the corrected data.)
+
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+After adjusting for missing values, the mean and median daily step counts have converged; the mean daily step count for the 61 day period is now 10,765, or 15% higher than the unadjusted data suggested, while the median count has risen to 10,762. (Note that had we taken the original total step count and divided by the number of days with no missing observations we would have gotten the same average value we see in the corrected data.)
 
 ## Weekend vs. Weekday Activity
 
-```{r}
+
+```r
 intavgWD <- adf %>% filter(Wknd == "Weekday") %>%
     group_by(interval) %>% 
     summarize(avgsteps = mean(steps)) 
@@ -218,7 +225,8 @@ meanWEsteps <- sum(intavgWE$avgsteps)
 
 The chart below compares the average step count per interval during weekdays and on weekends.
 
-```{r fig.width = 11, fig.height = 8}
+
+```r
 intavgf <- adf %>% 
     group_by(interval, Wknd) %>% 
     summarize(avgsteps = mean(steps)) 
@@ -239,7 +247,8 @@ g + facet_wrap(~Wknd, ncol=1) +
           panel.grid.major = element_line(colour = "grey"),
           panel.background = element_rect(fill = 'white', colour = 'grey')) +
     scale_x_discrete(breaks = unique(intavgf$interval)[c(T, rep(F, 11))])
-
 ```
 
-Looking at the adjusted data, for weekdays (Monday through Friday), the daily 5-minute interval starting at `r maxtimeWD` had the highest average step count, which was `r maxstepsWD` steps. On weekend days (Saturday and Sunday), the daily 5-minute interval starting at `r maxtimeWE` had the highest average step count, which was `r maxstepsWE` steps, but a second peak occurs a few intervals earlier. On weekdays, the average step count is `r formatC(meanWDsteps, format = "d", big.mark = ",")`, while on weekends it is `r formatC(meanWEsteps, format = "d", big.mark = ",")`.
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+
+Looking at the adjusted data, for weekdays (Monday through Friday), the daily 5-minute interval starting at 08:35 had the highest average step count, which was 230 steps. On weekend days (Saturday and Sunday), the daily 5-minute interval starting at 09:15 had the highest average step count, which was 167 steps, but a second peak occurs a few intervals earlier. On weekdays, the average step count is 10,255, while on weekends it is 12,201.
