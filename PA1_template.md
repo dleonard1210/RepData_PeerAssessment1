@@ -15,6 +15,7 @@ body{ /* Normal  */
 ad <- read.csv("activity.csv", stringsAsFactors = F)
 ad$date <- as.Date(ad$date)
 ad$DoW <- weekdays(ad$date)
+ad[,"Wknd"] <- NA  # Create a new column to indicate weekdays vs. weekend days
 ad[ad$DoW %in% c("Saturday","Sunday"),"Wknd"] <- "Weekend"
 ad[!(ad$DoW %in% c("Saturday","Sunday")),"Wknd"] <- "Weekday"
 ad$Wknd <- as.factor(ad$Wknd)
@@ -34,11 +35,11 @@ totalobs <- length(ad$interval)
 naobs <- length(ad[is.na(ad$steps),"interval"])
 napct <- as.integer(floor(.5 + (100*naobs/totalobs)))
 ```
-## Overview and data summary
+## Loading and preprocessing the data
 
 This report analyzes activity monitoring data collected over a period of 61 days, from 2012-10-01 to 2012-11-30. The data consists of a count of steps taken in five minute intervals throughout each day by the wearer of a monitoring device, for a total of 17,568 possible observations; however, 2,304 (13%) of the intervals had no measurements.
 
-## Steps Per Day
+## What is the mean total number of steps taken per day?
 
 The chart below shows the number of steps counted each day.
 
@@ -97,7 +98,7 @@ legend("topright",bg = "white",
 
 ![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
 
-## Average Steps Per Interval
+## What is the average daily activity pattern?
 
 ```r
 intavg <- ad %>% 
@@ -108,9 +109,8 @@ maxtime <- maxinterval$interval[1]
 maxsteps <- formatC(round(maxinterval$avgsteps[1]), big.mark = ",")
 ```
 
-For the time period in question, the daily 5-minute interval starting at 08:35 had the highest average step count, which was 206 steps.
-
 The plot below shows the step count by interval over the course of an average day.
+
 
 ```r
 intavgTitle <- paste("Average Step Count per Interval for the period from",firstday,"to",lastday)
@@ -130,7 +130,9 @@ axis(2,at = axTicks(2),
 
 ![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
 
-## Missing Observations
+For the time period in question, the daily 5-minute interval starting at 08:35 had the highest average step count, which was 206 steps.
+
+## Imputing missing values
 As mentioned earlier, 13% of observations were missing from the data. These missing values are isolated to 8 separate days for which there were no measurements at all, while the remaining days all had a full set of values (see chart below).
 
 ```r
@@ -202,7 +204,7 @@ legend("topright",bg = "white",
 ![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 After adjusting for missing values, the mean and median daily step counts have converged; the mean daily step count for the 61 day period is now 10,765, or 15% higher than the unadjusted data suggested, while the median count has risen to 10,762. (Note that had we taken the original total step count and divided by the number of days with no missing observations we would have gotten the same average value we see in the corrected data.)
 
-## Weekend vs. Weekday Activity
+## Are there differences in activity patterns between weekdays and weekends?
 
 
 ```r
@@ -223,7 +225,7 @@ maxstepsWE <- formatC(round(maxintervalWE$avgsteps[1]), big.mark = ",")
 meanWEsteps <- sum(intavgWE$avgsteps)
 ```
 
-The chart below compares the average step count per interval during weekdays and on weekends.
+The chart below compares the average step count per interval during weekdays and on weekends, using the data adjusted for missing values.
 
 
 ```r
@@ -251,4 +253,4 @@ g + facet_wrap(~Wknd, ncol=1) +
 
 ![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
-Looking at the adjusted data, for weekdays (Monday through Friday), the daily 5-minute interval starting at 08:35 had the highest average step count, which was 230 steps. On weekend days (Saturday and Sunday), the daily 5-minute interval starting at 09:15 had the highest average step count, which was 167 steps, but a second peak occurs a few intervals earlier. On weekdays, the average step count is 10,255, while on weekends it is 12,201.
+For weekdays (Monday through Friday), the daily 5-minute interval starting at 08:35 had the highest average step count, which was 230 steps. On weekend days (Saturday and Sunday), the daily 5-minute interval starting at 09:15 had the highest average step count, which was 167 steps, but a second peak occurs a few intervals earlier. On weekdays, the average step count is 10,255, while on weekends it is 12,201.

@@ -24,6 +24,7 @@ library(ggplot2)
 ad <- read.csv("activity.csv", stringsAsFactors = F)
 ad$date <- as.Date(ad$date)
 ad$DoW <- weekdays(ad$date)
+ad[,"Wknd"] <- NA  # Create a new column to indicate weekdays vs. weekend days
 ad[ad$DoW %in% c("Saturday","Sunday"),"Wknd"] <- "Weekend"
 ad[!(ad$DoW %in% c("Saturday","Sunday")),"Wknd"] <- "Weekday"
 ad$Wknd <- as.factor(ad$Wknd)
@@ -43,11 +44,11 @@ totalobs <- length(ad$interval)
 naobs <- length(ad[is.na(ad$steps),"interval"])
 napct <- as.integer(floor(.5 + (100*naobs/totalobs)))
 ```
-## Overview and data summary
+## Loading and preprocessing the data
 
 This report analyzes activity monitoring data collected over a period of `r days` days, from `r firstday` to `r lastday`. The data consists of a count of steps taken in five minute intervals throughout each day by the wearer of a monitoring device, for a total of `r formatC(totalobs,big.mark=",")` possible observations; however, `r formatC(naobs,big.mark=",")` (`r napct`%) of the intervals had no measurements.
 
-## Steps Per Day
+## What is the mean total number of steps taken per day?
 
 The chart below shows the number of steps counted each day.
 
@@ -101,7 +102,7 @@ legend("topright",bg = "white",
        lty = c(1,2))
 ```
 
-## Average Steps Per Interval
+## What is the average daily activity pattern?
 ```{r}
 intavg <- ad %>% 
     group_by(interval) %>% 
@@ -111,9 +112,8 @@ maxtime <- maxinterval$interval[1]
 maxsteps <- formatC(round(maxinterval$avgsteps[1]), big.mark = ",")
 ```
 
-For the time period in question, the daily 5-minute interval starting at `r maxtime` had the highest average step count, which was `r maxsteps` steps.
-
 The plot below shows the step count by interval over the course of an average day.
+
 ```{r fig.width = 11, fig.height = 5}
 intavgTitle <- paste("Average Step Count per Interval for the period from",firstday,"to",lastday)
 plot(intavg$avgsteps, type = "l", 
@@ -130,7 +130,9 @@ axis(2,at = axTicks(2),
      labels = formatC(axTicks(2), format = "d", big.mark = ","))
 ```
 
-## Missing Observations
+For the time period in question, the daily 5-minute interval starting at `r maxtime` had the highest average step count, which was `r maxsteps` steps.
+
+## Imputing missing values
 As mentioned earlier, `r napct`% of observations were missing from the data. These missing values are isolated to 8 separate days for which there were no measurements at all, while the remaining days all had a full set of values (see chart below).
 ```{r fig.width = 12, fig.height = 6}
 countsbyday <- ad %>% 
@@ -196,7 +198,7 @@ legend("topright",bg = "white",
 ```
 After adjusting for missing values, the mean and median daily step counts have converged; the mean daily step count for the `r days` day period is now `r formatC(dailystepsf, format = "d", big.mark = ",")`, or `r formatC(((dailystepsf/dailysteps)-1)*100, format = "d")`% higher than the unadjusted data suggested, while the median count has risen to `r formatC(mediandailystepsf, format = "d", big.mark = ",")`. (Note that had we taken the original total step count and divided by the number of days with no missing observations we would have gotten the same average value we see in the corrected data.)
 
-## Weekend vs. Weekday Activity
+## Are there differences in activity patterns between weekdays and weekends?
 
 ```{r}
 intavgWD <- adf %>% filter(Wknd == "Weekday") %>%
@@ -216,7 +218,7 @@ maxstepsWE <- formatC(round(maxintervalWE$avgsteps[1]), big.mark = ",")
 meanWEsteps <- sum(intavgWE$avgsteps)
 ```
 
-The chart below compares the average step count per interval during weekdays and on weekends.
+The chart below compares the average step count per interval during weekdays and on weekends, using the data adjusted for missing values.
 
 ```{r fig.width = 11, fig.height = 8}
 intavgf <- adf %>% 
@@ -242,4 +244,4 @@ g + facet_wrap(~Wknd, ncol=1) +
 
 ```
 
-Looking at the adjusted data, for weekdays (Monday through Friday), the daily 5-minute interval starting at `r maxtimeWD` had the highest average step count, which was `r maxstepsWD` steps. On weekend days (Saturday and Sunday), the daily 5-minute interval starting at `r maxtimeWE` had the highest average step count, which was `r maxstepsWE` steps, but a second peak occurs a few intervals earlier. On weekdays, the average step count is `r formatC(meanWDsteps, format = "d", big.mark = ",")`, while on weekends it is `r formatC(meanWEsteps, format = "d", big.mark = ",")`.
+For weekdays (Monday through Friday), the daily 5-minute interval starting at `r maxtimeWD` had the highest average step count, which was `r maxstepsWD` steps. On weekend days (Saturday and Sunday), the daily 5-minute interval starting at `r maxtimeWE` had the highest average step count, which was `r maxstepsWE` steps, but a second peak occurs a few intervals earlier. On weekdays, the average step count is `r formatC(meanWDsteps, format = "d", big.mark = ",")`, while on weekends it is `r formatC(meanWEsteps, format = "d", big.mark = ",")`.
