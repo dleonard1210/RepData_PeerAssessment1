@@ -55,10 +55,10 @@ The chart below shows the number of steps counted each day.
 ```{r fig.width = 11, fig.height = 6}
 stepsbyday <- ad %>% 
     group_by(date,Wknd) %>% 
-    summarize(steps = sum(steps, na.rm = TRUE))
-mediandailysteps <- median(stepsbyday$steps)
-maxdailysteps <- max(stepsbyday$steps)
-dailysteps <- mean(stepsbyday$steps)
+    summarize(steps = sum(steps))
+mediandailysteps <- median(stepsbyday$steps, na.rm = TRUE)
+maxdailysteps <- max(stepsbyday$steps, na.rm = TRUE)
+dailysteps <- mean(stepsbyday$steps, na.rm = TRUE)
 par(oma = c(4,1,1,1))
 stepplot <- barplot(stepsbyday$steps, 
                   col=stepsbyday$Wknd, 
@@ -80,7 +80,7 @@ Ignoring intervals with no reported values, the average daily step count over th
 
 ```{r fig.width = 11, fig.height = 5}
 mediancolor = "blue"
-meancolor = "dark red"
+meancolor = "orange"
 hist(stepsbyday$steps, 
      breaks = floor(maxdailysteps/1000),
      col="light grey", 
@@ -196,7 +196,7 @@ legend("topright",bg = "white",
        lwd = 2,
        lty = c(1,2))
 ```
-After adjusting for missing values, the mean and median daily step counts have converged; the mean daily step count for the `r days` day period is now `r formatC(dailystepsf, format = "d", big.mark = ",")`, or `r formatC(((dailystepsf/dailysteps)-1)*100, format = "d")`% higher than the unadjusted data suggested, while the median count has risen to `r formatC(mediandailystepsf, format = "d", big.mark = ",")`. (Note that had we taken the original total step count and divided by the number of days with no missing observations we would have gotten the same average value we see in the corrected data.)
+Because we filled in using the average value per interval, there was very little change in the mean and median values. After adjusting for missing values, the mean daily step count for the `r days` day period is `r formatC(dailystepsf, format = "d", big.mark = ",")`, and the median count is `r formatC(mediandailystepsf, format = "d", big.mark = ",")`. 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 

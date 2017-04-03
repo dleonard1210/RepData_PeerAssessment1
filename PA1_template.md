@@ -47,10 +47,10 @@ The chart below shows the number of steps counted each day.
 ```r
 stepsbyday <- ad %>% 
     group_by(date,Wknd) %>% 
-    summarize(steps = sum(steps, na.rm = TRUE))
-mediandailysteps <- median(stepsbyday$steps)
-maxdailysteps <- max(stepsbyday$steps)
-dailysteps <- mean(stepsbyday$steps)
+    summarize(steps = sum(steps))
+mediandailysteps <- median(stepsbyday$steps, na.rm = TRUE)
+maxdailysteps <- max(stepsbyday$steps, na.rm = TRUE)
+dailysteps <- mean(stepsbyday$steps, na.rm = TRUE)
 par(oma = c(4,1,1,1))
 stepplot <- barplot(stepsbyday$steps, 
                   col=stepsbyday$Wknd, 
@@ -69,12 +69,12 @@ legend("bottom",bg = "white",
 
 ![](PA1_template_files/figure-html/unnamed-chunk-1-1.png)<!-- -->
 
-Ignoring intervals with no reported values, the average daily step count over the 61 day measurement period was 9,354, and the median step count was 10,395. The chart below shows the distribution of step counts. The most frequent step count was between 10,000 and 11,000 steps.
+Ignoring intervals with no reported values, the average daily step count over the 61 day measurement period was 10,766, and the median step count was 10,765. The chart below shows the distribution of step counts. The most frequent step count was between 10,000 and 11,000 steps.
 
 
 ```r
 mediancolor = "blue"
-meancolor = "dark red"
+meancolor = "orange"
 hist(stepsbyday$steps, 
      breaks = floor(maxdailysteps/1000),
      col="light grey", 
@@ -202,7 +202,7 @@ legend("topright",bg = "white",
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
-After adjusting for missing values, the mean and median daily step counts have converged; the mean daily step count for the 61 day period is now 10,765, or 15% higher than the unadjusted data suggested, while the median count has risen to 10,762. (Note that had we taken the original total step count and divided by the number of days with no missing observations we would have gotten the same average value we see in the corrected data.)
+Because we filled in using the average value per interval, there was very little change in the mean and median values. After adjusting for missing values, the mean daily step count for the 61 day period is 10,765, and the median count is 10,762. 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
