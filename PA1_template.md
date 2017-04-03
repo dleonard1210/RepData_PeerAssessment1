@@ -169,7 +169,7 @@ To adjust for missing values, I chose to fill in using the average value for the
 
 ```r
 adf <- inner_join(ad, intavg, by = "interval")
-adf[is.na(adf$steps), "steps"] <- as.integer(round(adf[is.na(adf$steps), "avgsteps"]))
+adf[is.na(adf$steps), "steps"] <- adf[is.na(adf$steps), "avgsteps"]
 
 stepsbydayf <- adf %>% 
     group_by(date,Wknd) %>% 
@@ -202,7 +202,7 @@ legend("topright",bg = "white",
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
-Because we filled in using the average value per interval, there was very little change in the mean and median values. After adjusting for missing values, the mean daily step count for the 61 day period is 10,765, and the median count is 10,762. 
+Because we filled in using the average value per interval, there was very little change in the mean and median values. After adjusting for missing values, the mean daily step count for the 61 day period is 10,766, and the median count is 10,766. 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 

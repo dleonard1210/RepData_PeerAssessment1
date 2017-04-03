@@ -165,7 +165,7 @@ To adjust for missing values, I chose to fill in using the average value for the
 
 ```{r fig.width = 11, fig.height = 5}
 adf <- inner_join(ad, intavg, by = "interval")
-adf[is.na(adf$steps), "steps"] <- as.integer(round(adf[is.na(adf$steps), "avgsteps"]))
+adf[is.na(adf$steps), "steps"] <- adf[is.na(adf$steps), "avgsteps"]
 
 stepsbydayf <- adf %>% 
     group_by(date,Wknd) %>% 
